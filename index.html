@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRM UpLife | Gestão de Leads</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">U</div>
+        <div>
+          <h1>CRM UpLife</h1>
+          <p>Gestão de Leads, Atendimento e Matrículas</p>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn btn-primary" id="openAddLeadBtn">Adicionar Lead</button>
+        <button class="btn btn-whatsapp" id="simulateWhatsAppBtn">Simular WhatsApp</button>
+      </div>
+    </header>
+
+    <section class="toolbar">
+      <div class="search-box">
+        <span>🔎</span>
+        <input id="searchInput" type="search" placeholder="Buscar por nome, telefone ou curso" />
+      </div>
+
+      <select id="sourceFilter" aria-label="Filtrar por origem">
+        <option value="all">Todas as origens</option>
+      </select>
+
+      <select id="responsibleFilter" aria-label="Filtrar por responsável">
+        <option value="all">Todos os responsáveis</option>
+      </select>
+
+      <select id="statusFilter" aria-label="Filtrar por status">
+        <option value="all">Todos os status</option>
+      </select>
+
+      <button class="btn btn-soft" id="clearFiltersBtn">Limpar filtros</button>
+    </section>
+
+    <section class="summary-grid" aria-label="Indicadores principais">
+      <article class="summary-card">
+        <span>Total de leads</span>
+        <strong id="totalLeadsMetric">0</strong>
+      </article>
+      <article class="summary-card">
+        <span>Leads novos hoje</span>
+        <strong id="todayLeadsMetric">0</strong>
+      </article>
+      <article class="summary-card">
+        <span>Em atendimento</span>
+        <strong id="inServiceMetric">0</strong>
+      </article>
+      <article class="summary-card">
+        <span>Aguardando pagamento</span>
+        <strong id="waitingPaymentMetric">0</strong>
+      </article>
+      <article class="summary-card success">
+        <span>Matriculados</span>
+        <strong id="enrolledMetric">0</strong>
+      </article>
+      <article class="summary-card conversion">
+        <span>Taxa de conversão</span>
+        <strong id="conversionMetric">0%</strong>
+      </article>
+      <article class="summary-card danger">
+        <span>Sem resposta</span>
+        <strong id="noResponseMetric">0</strong>
+      </article>
+    </section>
+
+    <main class="kanban-wrapper">
+      <section class="kanban-board" id="kanbanBoard" aria-label="Funil de vendas em Kanban"></section>
+    </main>
+
+    <section class="automation-section">
+      <div class="section-heading">
+        <div>
+          <h2>Automações previstas</h2>
+          <p>Fluxos preparados para evolução com n8n, WhatsApp Business Cloud API e Supabase.</p>
+        </div>
+      </div>
+      <div class="automation-grid" id="automationGrid"></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="leadModal" aria-hidden="true">
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="closeModalBtn" aria-label="Fechar modal">×</button>
+      <h2 id="modalTitle">Lead</h2>
+      <p id="modalSubtitle" class="modal-subtitle"></p>
+
+      <form id="leadForm" class="lead-form">
+        <input type="hidden" id="leadId" />
+
+        <div class="form-grid">
+          <label>
+            Nome
+            <input id="leadName" type="text" required placeholder="Nome do lead" />
+          </label>
+          <label>
+            Telefone
+            <input id="leadPhone" type="text" required placeholder="41999999999" />
+          </label>
+          <label>
+            Curso de interesse
+            <input id="leadCourse" type="text" placeholder="Curso técnico" />
+          </label>
+          <label>
+            Origem
+            <select id="leadSource">
+              <option>WhatsApp</option>
+              <option>Instagram</option>
+              <option>Facebook</option>
+              <option>Site</option>
+              <option>Indicação</option>
+              <option>Ligação</option>
+            </select>
+          </label>
+          <label>
+            Responsável
+            <select id="leadResponsible">
+              <option>Ana</option>
+              <option>Lucas</option>
+              <option>Mariana</option>
+              <option>Rafael</option>
+              <option>Equipe Comercial</option>
+            </select>
+          </label>
+          <label>
+            Etapa atual
+            <select id="leadStage"></select>
+          </label>
+          <label>
+            Status
+            <select id="leadStatus">
+              <option>Novo</option>
+              <option>Em atendimento</option>
+              <option>Sem resposta</option>
+              <option>Quente</option>
+              <option>Frio</option>
+              <option>Convertido</option>
+            </select>
+          </label>
+          <label>
+            Prioridade
+            <select id="leadPriority">
+              <option>Baixa</option>
+              <option>Média</option>
+              <option>Alta</option>
+            </select>
+          </label>
+          <label>
+            Próxima ação
+            <select id="leadNextAction">
+              <option>Enviar mensagem</option>
+              <option>Ligar</option>
+              <option>Cobrar documento</option>
+              <option>Aguardar retorno</option>
+              <option>Cobrar pagamento</option>
+              <option>Finalizar matrícula</option>
+            </select>
+          </label>
+          <label>
+            Próximo contato
+            <input id="leadNextContact" type="date" />
+          </label>
+        </div>
+
+        <label>
+          Tags, separadas por vírgula
+          <input id="leadTags" type="text" placeholder="Urgente, WhatsApp, Bolsa" />
+        </label>
+
+        <label>
+          Última mensagem
+          <textarea id="leadLastMessage" rows="2" placeholder="Mensagem mais recente"></textarea>
+        </label>
+
+        <label>
+          Observações internas
+          <textarea id="leadNotes" rows="4" placeholder="Anotações do atendimento"></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Salvar lead</button>
+          <button type="button" class="btn btn-soft" id="copyPhoneBtn">Copiar telefone</button>
+          <button type="button" class="btn btn-whatsapp" id="openWhatsAppBtn">Abrir WhatsApp</button>
+        </div>
+      </form>
+
+      <div class="details-blocks" id="detailsBlocks">
+        <div>
+          <h3>Nova observação</h3>
+          <div class="note-row">
+            <input id="newObservationInput" type="text" placeholder="Adicionar observação rápida" />
+            <button class="btn btn-soft" id="addObservationBtn">Adicionar</button>
+          </div>
+        </div>
+
+        <div>
+          <h3>Histórico de mensagens</h3>
+          <ul class="history-list" id="messageHistory"></ul>
+        </div>
+
+        <div>
+          <h3>Histórico de movimentações</h3>
+          <ul class="history-list" id="movementHistory"></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <template id="leadCardTemplate">
+    <article class="lead-card" draggable="true">
+      <div class="card-topline">
+        <span class="status-badge"></span>
+        <span class="priority-badge"></span>
+      </div>
+      <h3></h3>
+      <p class="lead-phone"></p>
+      <p class="lead-course"></p>
+      <div class="lead-meta"></div>
+      <p class="lead-message"></p>
+      <p class="lead-date"></p>
+      <div class="tag-list"></div>
+      <div class="card-actions">
+        <button data-action="details">Detalhes</button>
+        <button data-action="edit">Editar</button>
+        <button data-action="whatsapp">WhatsApp</button>
+        <button data-action="delete" class="danger-action">Excluir</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
